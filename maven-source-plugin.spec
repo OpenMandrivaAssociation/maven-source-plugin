@@ -1,6 +1,6 @@
 Name:           maven-source-plugin
 Version:        2.1.2
-Release:        5
+Release:        7
 Summary:        Plugin creating source jar
 
 Group:          Development/Java
