@@ -1,20 +1,20 @@
+%{?_javapackages_macros:%_javapackages_macros}
 Name:           maven-source-plugin
-Version:        2.1.2
-Release:        8
+Version:        2.2.1
+Release:        6.1%{?dist}
 Summary:        Plugin creating source jar
 
-Group:          Development/Java
+
 License:        ASL 2.0
 URL:            http://maven.apache.org/plugins/maven-source-plugin/
 Source0:        http://repo1.maven.org/maven2/org/apache/maven/plugins/%{name}/%{version}/%{name}-%{version}-source-release.zip
 
 BuildArch: noarch
 
-BuildRequires: java-devel >= 1.6.0
+BuildRequires: maven-local
+BuildRequires: java-devel >= 1:1.6.0
 BuildRequires: plexus-utils
 BuildRequires: ant
-BuildRequires: maven
-BuildRequires: maven-install-plugin
 BuildRequires: maven-compiler-plugin
 BuildRequires: maven-plugin-plugin
 BuildRequires: maven-resources-plugin
@@ -22,13 +22,7 @@ BuildRequires: maven-surefire-plugin
 BuildRequires: maven-surefire-provider-junit
 BuildRequires: maven-jar-plugin
 BuildRequires: maven-javadoc-plugin
-BuildRequires: jpackage-utils
-Requires: ant
-Requires: maven
-Requires: jpackage-utils
-Requires: java
-Requires(post): jpackage-utils
-Requires(postun): jpackage-utils 
+BuildRequires: mvn(org.apache.maven.surefire:surefire-junit4)
 
 Obsoletes: maven2-plugin-source < 0:%{version}-%{release}
 Provides: maven2-plugin-source = 0:%{version}-%{release}
@@ -38,9 +32,8 @@ The Maven 2 Source Plugin creates a JAR archive of the
 source files of the current project.
 
 %package javadoc
-Group:          Development/Java
+
 Summary:        Javadoc for %{name}
-Requires: jpackage-utils
 
 %description javadoc
 API documentation for %{name}.
@@ -51,37 +44,64 @@ API documentation for %{name}.
 sed -i -e "s|plexus-container-default|plexus-container|g" pom.xml
 
 %build
-mvn-rpmbuild \
-        -Dmaven.test.failure.ignore=true \
-        install javadoc:aggregate
+%mvn_file  : %{name}
+%mvn_build -f
 
 %install
-# jars
-install -d -m 0755 %{buildroot}%{_javadir}
-install -m 644 target/%{name}-%{version}.jar   %{buildroot}%{_javadir}/%{name}.jar
+%mvn_install
 
-%add_to_maven_depmap org.apache.maven.plugins maven-source-plugin %{version} JPP maven-source-plugin
 
-# poms
-install -d -m 755 %{buildroot}%{_mavenpomdir}
-install -pm 644 pom.xml \
-    %{buildroot}%{_mavenpomdir}/JPP-%{name}.pom
+%files -f .mfiles
+%doc LICENSE NOTICE
 
-# javadoc
-install -d -m 0755 %{buildroot}%{_javadocdir}/%{name}
-cp -pr target/site/api*/* %{buildroot}%{_javadocdir}/%{name}/
+%files javadoc -f .mfiles-javadoc
+%doc LICENSE NOTICE
 
-%post
-%update_maven_depmap
+%changelog
+* Sat Aug 03 2013 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 2.2.1-6
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_20_Mass_Rebuild
 
-%postun
-%update_maven_depmap
+* Thu Feb 14 2013 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 2.2.1-5
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_19_Mass_Rebuild
 
-%files
-%{_javadir}/*
-%{_mavenpomdir}/*
-%{_mavendepmapfragdir}/*
+* Wed Feb 06 2013 Java SIG <java-devel@lists.fedoraproject.org> - 2.2.1-4
+- Update for https://fedoraproject.org/wiki/Fedora_19_Maven_Rebuild
+- Replace maven BuildRequires with maven-local
 
-%files javadoc
-%{_javadocdir}/%{name}
+* Wed Jan 16 2013 Michal Srb <msrb@redhat.com> - 2.2.1-3
+- Build with xmvn
 
+* Fri Nov 23 2012 Mikolaj Izdebski <mizdebsk@redhat.com> - 2.2.1-2
+- Install license files
+- Resolves: rhbz#876837
+
+* Tue Oct 23 2012 Alexander Kurtakov <akurtako@redhat.com> 2.2.1-1
+- Update to latest upstream release.
+
+* Thu Jul 19 2012 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 2.1.2-8
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_18_Mass_Rebuild
+
+* Fri Jan 13 2012 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 2.1.2-7
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_17_Mass_Rebuild
+
+* Wed Jun 8 2011 Alexander Kurtakov <akurtako@redhat.com> 2.1.2-6
+- Use upstream source.
+- Build with maven 3.x.
+- Guidelines fixes.
+
+* Tue Feb 08 2011 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 2.1.2-5
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_15_Mass_Rebuild
+
+* Thu Sep 9 2010 Alexander Kurtakov <akurtako@redhat.com> 2.1.2-4
+- Do not exclude plexus-container-default from dependencies.
+
+* Fri May 28 2010 Alexander Kurtakov <akurtako@redhat.com> 2.1.2-3
+- Add provides/obsoletes.
+
+* Thu May 27 2010 Alexander Kurtakov <akurtako@redhat.com> 2.1.2-2
+- Fix Url.
+- More descriptive summary.
+- Add missing BR.
+
+* Thu May 27 2010 Alexander Kurtakov <akurtako@redhat.com> 2.1.2-1
+- Initial package.
