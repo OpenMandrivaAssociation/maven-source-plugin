@@ -1,2 +1,4 @@
 sources:
+  maven-source-plugin-3.4.0.tar.gz: e44c6c1290b40bb49fcda459c8dd1bda0e5ff21e
+removed_sources:
   maven-source-plugin-2.2.1-source-release.zip: 3653867a53bb7b8ee3b47401ad2fb4e96b6d083d
